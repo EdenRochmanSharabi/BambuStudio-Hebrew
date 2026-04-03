@@ -322,6 +322,8 @@ set(SLIC3R_GUI_SOURCES
     GUI/OG_CustomCtrl.hpp
     GUI/MarkdownTip.cpp
     GUI/MarkdownTip.hpp
+    GUI/BeginnerHelpHandler.cpp
+    GUI/BeginnerHelpHandler.hpp
     GUI/2DBed.cpp
     GUI/2DBed.hpp
     GUI/3DBed.cpp

@@ -57,6 +57,7 @@
 #include "GUI_ObjectList.hpp"
 #include "NotificationManager.hpp"
 #include "MarkdownTip.hpp"
+#include "BeginnerHelpHandler.hpp"
 #include "NetworkTestDialog.hpp"
 #include "ConfigWizard.hpp"
 #include "Widgets/WebView.hpp"
@@ -217,6 +218,9 @@ DPIFrame(NULL, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, BORDERLESS_FRAME_
     // BBS
     m_recent_projects.SetMenuPathStyle(wxFH_PATH_SHOW_ALWAYS);
     MarkdownTip::Recreate(this);
+
+    // Initialize beginner help system (Cmd/Ctrl+Click for help popups)
+    BeginnerHelpHandler::instance().init(this);
 
     // Fonts were created by the DPIFrame constructor for the monitor, on which the window opened.
     wxGetApp().update_fonts(this);
@@ -1755,8 +1759,10 @@ wxBoxSizer* MainFrame::create_side_tools()
     auto print_panel = new wxPanel(this,wxID_ANY,wxDefaultPosition,wxDefaultSize,wxTRANSPARENT_WINDOW);
 
     m_slice_btn = new SideButton(slice_panel, _L("Slice plate"), "");
+    m_slice_btn->SetName("btn_slice");
     m_slice_option_btn = new SideButton(slice_panel, "", "sidebutton_dropdown", 0, FromDIP(14));
     m_print_btn = new SideButton(print_panel, _L("Print plate"), "");
+    m_print_btn->SetName("btn_print");
     m_print_option_btn = new SideButton(print_panel, "", "sidebutton_dropdown", 0, FromDIP(14));
 
     auto slice_sizer = new wxBoxSizer(wxHORIZONTAL);

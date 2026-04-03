@@ -6291,10 +6291,8 @@ bool GUI_App::load_language(wxString language, bool initial)
     	BOOST_LOG_TRIVIAL(error) << boost::format("Language code \"%1%\" is not supported") % language.ToUTF8().data();
 	}
 
-	if (language_info != nullptr && language_info->LayoutDirection == wxLayout_RightToLeft) {
-    	BOOST_LOG_TRIVIAL(info) << boost::format("The following language code requires right to left layout, which is not supported by BambuStudio: %1%") % language_info->CanonicalName.ToUTF8().data();
-		language_info = nullptr;
-	}
+	// Note: RTL check removed to support Hebrew translation.
+	// wxWidgets handles RTL layout direction automatically for most controls.
 
     if (language_info == nullptr) {
         // PrusaSlicer does not support the Right to Left languages yet.

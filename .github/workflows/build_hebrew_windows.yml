@@ -1,0 +1,70 @@
+name: Build Hebrew BambuStudio (Windows)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build_windows:
+    name: Build Windows Hebrew
+    runs-on: windows-latest
+    env:
+      date:
+      ver:
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          lfs: 'true'
+
+      - name: Get version
+        run: |
+          $versionContent = Get-Content version.inc -Raw
+          if ($versionContent -match 'set\(SLIC3R_VERSION "(.*?)"\)') {
+              $ver = $matches[1]
+          }
+          $date = Get-Date -Format 'yyyyMMdd'
+          echo "ver=V$ver-hebrew" | Out-File -Append -FilePath $env:GITHUB_ENV -Encoding utf8
+          echo "date=$date" | Out-File -Append -FilePath $env:GITHUB_ENV -Encoding utf8
+        shell: pwsh
+
+      - name: setup MSVC
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Install nsis and pkgconfig
+        run: |
+          choco install nsis
+          choco install pkgconfiglite
+
+      - name: Build deps
+        working-directory: ${{ github.workspace }}
+        run: |
+          mkdir deps/build
+          cd deps/build
+          cmake ../.. -G "Visual Studio 17 2022" -A X64 -DDESTDIR="${{ github.workspace }}\deps\build\BambuStudio_dep" -DCMAKE_BUILD_TYPE=Release
+          cmake --build . --target deps --config Release -- -m
+
+      - name: Cache deps
+        uses: actions/cache/save@v5
+        with:
+          path: ${{ github.workspace }}/deps/build/BambuStudio_dep
+          key: windows-hebrew-deps-${{ hashFiles('deps/**') }}
+
+      - name: Build slicer
+        working-directory: ${{ github.workspace }}
+        run: |
+          mkdir build
+          cd build
+          cmake .. -G "Visual Studio 17 2022" -A X64 -DBBL_RELEASE_TO_PUBLIC=1 -DBBL_INTERNAL_TESTING=0 -DCMAKE_PREFIX_PATH="${{ github.workspace }}\deps\build\BambuStudio_dep\usr\local" -DCMAKE_INSTALL_PREFIX="../install-dir" -DCMAKE_BUILD_TYPE=Release -DWIN10SDK_PATH="C:/Program Files (x86)/Windows Kits/10/Include/10.0.22000.0"
+          cmake --build . --target install --config Release -- -m
+
+      - name: Pack portable zip
+        working-directory: ${{ github.workspace }}
+        shell: cmd
+        run: '"C:/Program Files/7-Zip/7z.exe" a -tzip BambuStudio_Windows_Hebrew_${{ env.ver }}.zip ${{ github.workspace }}/install-dir'
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: BambuStudio_Windows_Hebrew_${{ env.ver }}
+          path: ${{ github.workspace }}/BambuStudio_Windows_Hebrew_${{ env.ver }}.zip
