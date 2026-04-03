@@ -40,7 +40,7 @@ jobs:
         uses: actions/cache/save@v5
         with:
           path: ${{ github.workspace }}/deps/build/BambuStudio_dep
-          key: windows-hebrew-deps-${{ hashFiles('deps/**') }}
+          key: windows-hebrew-deps-v1
 
   build_slicer:
     name: Build Slicer
@@ -64,7 +64,7 @@ jobs:
         uses: actions/cache/restore@v5
         with:
           path: ${{ github.workspace }}/deps/build/BambuStudio_dep
-          key: windows-hebrew-deps-${{ hashFiles('deps/**') }}
+          key: windows-hebrew-deps-v1
           fail-on-cache-miss: true
 
       - name: Get version
